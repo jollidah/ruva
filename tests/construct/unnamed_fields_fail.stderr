@@ -1,0 +1,5 @@
+error: Only Structs with named fields are supported
+ --> tests/construct/unnamed_fields_fail.rs:4:1
+  |
+4 | struct TupleStruct(String, i32);
+  | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
