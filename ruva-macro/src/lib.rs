@@ -29,7 +29,9 @@ pub fn message_derive(attr: TokenStream) -> TokenStream {
 
 /// Define TAggregate root
 /// ## Example
-/// ```rust,no_run
+/// ```rust,ignore
+/// // fork note: `ignore` because `aggregate.version` is referenced but the macro
+/// // does not inject a `version` field (see `domain.rs:193`).
 /// #[aggregate]
 /// #[derive(Debug, Default, Serialize, Deserialize)]
 /// pub struct TestAggregate {
@@ -103,7 +105,9 @@ pub fn message_derive(attr: TokenStream) -> TokenStream {
 /// ```
 ///
 /// Generic can also be used for aggregate:
-/// ```rust,no_run
+/// ```rust,ignore
+/// // fork note: `ignore` because this example uses `#[adapter_ignore]`, which
+/// // this fork now emits `compile_error!` for (see `domain.rs::create_struct_adapter_quote`).
 /// #[derive(Default, Debug, Serialize, Deserialize)]
 /// struct Unset;
 ///

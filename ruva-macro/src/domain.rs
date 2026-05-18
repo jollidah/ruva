@@ -193,7 +193,7 @@ pub fn create_struct_adapter_quote(input: &DeriveInput, for_aggregate: bool) -> 
 	// aggregates_fields.push("version: 0".to_string());
 
 	if !fields_to_ignore.is_empty() {
-		aggregates_fields.push("..Default::default()".to_string());
+		return quote!(compile_error!("#[adapter_ignore] is unsupported in this fork"););
 	}
 	let aggregates_fields = aggregates_fields.join(",");
 	let adapter_fields = adapter_fields.join(",");

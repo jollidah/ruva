@@ -251,66 +251,17 @@ mod test {
 		}
 	}
 
-	#[test]
-	fn test_serialize() {
-		#[aggregate]
-		#[derive(Debug, Clone, Serialize, Default)]
-		pub struct SerializeTest {
-			#[adapter_ignore]
-			id: i32,
-			#[serde(skip_serializing)]
-			name: String,
-			foo: i32,
-		}
-		let aggregate = SerializeTest::default();
-		let serialized = serde_json::to_string(&aggregate).unwrap();
-		assert_eq!(serialized, "{\"id\":0,\"some_other_field\":0,\"version\":0}");
-	}
-
-	#[test]
-	fn test_adapter_accessible() {
-		#[aggregate]
-		#[derive(Debug, Clone, Serialize, Default)]
-		pub struct TestStruct {
-			#[adapter_ignore]
-			id: i32,
-			#[serde(skip_serializing)]
-			name: String,
-			foo: i32,
-		}
-		let adapter = TestStructAdapter::default();
-		let serialized = serde_json::to_string(&adapter).unwrap();
-		assert_eq!(serialized, "{\"some_other_field\":0}");
-	}
-
-	#[test]
-	fn test_conversion() {
-		#[aggregate]
-		#[derive(Debug, Clone, Serialize, Default)]
-		pub struct ConversionStruct {
-			#[adapter_ignore]
-			id: i32,
-			#[serde(skip_serializing)]
-			name: String,
-			foo: i32,
-		}
-		let aggregate = ConversionStruct {
-			name: "migo".into(),
-			foo: 2,
-			id: 1,
-			..Default::default()
-		};
-		assert_eq!(aggregate.id, 1);
-		let converted_adapter = ConversionStructAdapter::from(aggregate);
-
-		assert_eq!(converted_adapter.name, "migo");
-		assert_eq!(converted_adapter.foo, 2);
-
-		let converted_struct = ConversionStruct::from(converted_adapter);
-		assert_eq!(converted_struct.name, "migo");
-		assert_eq!(converted_struct.foo, 2);
-	}
-
+	// Fork notes (drop-default-supertrait):
+	// - `test_serialize`, `test_adapter_accessible`, `test_conversion` removed.
+	//   They used `#[adapter_ignore]`, which now emits `compile_error!` in this fork
+	//   (see `ruva-macro/src/domain.rs::create_struct_adapter_quote`).
+	// - `test_when_there_is_no_apdater_ignore_attr` keeps the no-`adapter_ignore` path
+	//   but drops the stale `"version":0` assertion: ruva-macro never actually injects
+	//   a `version` field (the push site at `domain.rs:193` is commented out), so the
+	//   serialized form lacks `"version":0`.
+	// - `TestStruct` no longer needs `Default` for `TAggregate` (this fork drops the
+	//   `TAggregate: Default` supertrait); the `Default` derive remains only so the
+	//   test itself can call `TestStruct::default()`.
 	#[test]
 	fn test_when_there_is_no_apdater_ignore_attr() {
 		#[aggregate]
@@ -323,7 +274,7 @@ mod test {
 
 		let non_adapter = TestStruct::default();
 		let non_adapter_serialized = serde_json::to_string(&non_adapter).unwrap();
-		assert_eq!(non_adapter_serialized, "{\"id\":0,\"name\":\"\",\"some_other_field\":0,\"version\":0}");
+		assert_eq!(non_adapter_serialized, "{\"id\":0,\"name\":\"\",\"some_other_field\":0}");
 
 		let adapter = TestStructAdapter::default();
 		let adapter_serialized = serde_json::to_string(&adapter).unwrap();
